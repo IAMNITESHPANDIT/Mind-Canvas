@@ -1,52 +1,43 @@
 // components/PostForm.js
 import React from "react";
 import { Formik, Field, Form, ErrorMessage, FieldArray } from "formik";
-import * as Yup from "yup";
 import Button from "@components/button/Button";
 import "../../styles/postform.style.scss";
 import { AiOutlineDelete } from "react-icons/ai";
+import { validationSchema } from "./PostSchema";
 
 const PostForm = ({ data, onSubmit, mode, open, setOpen }) => {
-  const validationSchema = Yup.object().shape({
-    title: Yup.string().required("Title is required"),
-    description: Yup.string().required("Description is required"),
-    hashtags: Yup.array().test({
-      name: "hashtags",
-      test: function (value) {
-        const { isUserAdded } = this.options.context; // Access the context
-
-        if (isUserAdded && (!value || value.length === 0)) {
-          return false; // Hashtags are mandatory if the user added fields
-        }
-
-        if (value && value.length > 0) {
-          return value.every(
-            (field) => field && field.trim() !== "" && field.length <= 10
-          );
-        }
-
-        return true;
-      },
-      message:
-        "Hashtags fields cannot be empty and must not exceed 10 characters",
-    }),
-    image: Yup.string().url("Invalid URL").required("Image URL is required"),
-  });
-
   const initialValues = {
+    _id: data?._id ? data?._id : "",
     title: data?.title?.length > 0 ? data?.title : "",
     description: data?.description?.length > 0 ? data?.description : "",
     hashtags: data?.hashtags?.length > 0 ? data?.hashtags : [],
     image: data?.image?.length > 0 ? data?.image : "",
   };
 
+  const shouldRenderAddButton = (form) => {
+    return (
+      !form.errors.hashtags &&
+      form.values.hashtags.length <= 4 &&
+      mode !== "view"
+    );
+  };
+
+  const viewHandler = (mode) => {
+    return mode === "view";
+  };
+
   return (
     <>
       {open && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center postForm">
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center postForm ">
           <div className="bg-white p-8 rounded shadow-md w-96">
             <h2 className="text-2xl font-bold mb-4">
-              {mode === "view" ? "View Post" : "Add Post"}
+              {mode === "view"
+                ? "View Post"
+                : mode == "edit"
+                ? "Edit Post"
+                : "Add Post"}
             </h2>
             <Formik
               initialValues={initialValues}
@@ -69,6 +60,7 @@ const PostForm = ({ data, onSubmit, mode, open, setOpen }) => {
                     type="text"
                     id="title"
                     name="title"
+                    disabled={viewHandler(mode)}
                     className="w-full border border-gray-300 rounded px-3 py-2 mt-1 focus:outline-none focus:border-blue-500"
                   />
                   <ErrorMessage
@@ -89,6 +81,7 @@ const PostForm = ({ data, onSubmit, mode, open, setOpen }) => {
                     type="text"
                     id="description"
                     name="description"
+                    disabled={viewHandler(mode)}
                     className="w-full border border-gray-300 rounded px-3 py-2 mt-1 focus:outline-none focus:border-blue-500"
                   />
                   <ErrorMessage
@@ -114,24 +107,26 @@ const PostForm = ({ data, onSubmit, mode, open, setOpen }) => {
                               type="text"
                               id={`hashtags[${index}]`}
                               name={`hashtags[${index}]`}
+                              disabled={viewHandler(mode)}
                               className="w-full border border-gray-300 rounded px-3 py-2 mt-1 focus:outline-none focus:border-blue-500"
                             />
-                            <AiOutlineDelete
-                              className="m-2"
-                              title="Delete"
-                              onClick={() => remove(index)}
-                            />
+                            {!viewHandler(mode) && (
+                              <AiOutlineDelete
+                                className="m-2 cursor-pointer"
+                                title="Delete"
+                                onClick={() => remove(index)}
+                              />
+                            )}
                           </div>
                         ))}
 
-                        {!form.errors.hashtags && // Check if there are no errors in hashtags
-                          form.values.hashtags.length <= 4 && (
-                            <Button
-                              btnName="Add HashTag"
-                              btnClsName="hashBtn"
-                              btnEvent={() => push("")}
-                            />
-                          )}
+                        {shouldRenderAddButton(form) && (
+                          <Button
+                            btnName="Add HashTag"
+                            btnClsName="hashBtn"
+                            btnEvent={() => push("")}
+                          />
+                        )}
                       </div>
                     )}
                   </FieldArray>
@@ -153,6 +148,7 @@ const PostForm = ({ data, onSubmit, mode, open, setOpen }) => {
                     type="text"
                     id="image"
                     name="image"
+                    disabled={viewHandler(mode)}
                     className="w-full border border-gray-300 rounded px-3 py-2 mt-1 focus:outline-none focus:border-blue-500"
                   />
                   <ErrorMessage
