@@ -19,7 +19,8 @@ const PostLayout = () => {
   const [mode, setMode] = useState("view");
   const [open, setOpen] = useState(false);
 
-  const { data: session } = useSession();
+  const session = useSession();
+  const userData = session?.data;
 
   const handleUpdatePost = async (newData) => {
     const { _id, title, description, hashtags, userId, role, image } = newData;
@@ -42,7 +43,7 @@ const PostLayout = () => {
         }),
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${session.user.accessToken}`, // Include the token in the Authorization header
+          Authorization: `Bearer ${userData.user.accessToken}`, // Include the token in the Authorization header
         },
       });
       const data = await response.json();
@@ -61,13 +62,13 @@ const PostLayout = () => {
           title: dataValues.title,
           description: dataValues.description,
           hashtag: arrayToString(dataValues.hashtags),
-          userId: session.user._id,
-          role: session.user.role,
+          userId: userData.user._id,
+          role: userData.user.role,
           image: dataValues.image,
         }),
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${session.user.accessToken}`, // Include the token in the Authorization header
+          Authorization: `Bearer ${userData.user.accessToken}`, // Include the token in the Authorization header
         },
       });
 
@@ -87,7 +88,7 @@ const PostLayout = () => {
         }),
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${session.user.accessToken}`,
+          Authorization: `Bearer ${userData.user.accessToken}`,
         },
       });
 
@@ -105,7 +106,7 @@ const PostLayout = () => {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${
-            session?.user?.accessToken ? session.user.accessToken : ""
+            userData?.user?.accessToken ? userData.user.accessToken : ""
           }`,
         },
       });
@@ -123,11 +124,11 @@ const PostLayout = () => {
   };
   useEffect(() => {
     fetchPost();
-  }, [session?.user?.accessToken]);
+  }, [userData?.user?.accessToken]);
 
   return (
     <>
-      {renderPostSection(session, handleUpdate)}
+      {renderPostSection(userData, handleUpdate)}
       <div className="container postLayout">
         <div className="flex flex-wrap post ">
           {posts.length > 0 ? (
@@ -160,31 +161,31 @@ const PostLayout = () => {
 
 export default PostLayout;
 
-export async function getServerSideProps() {
-  const { data: session } = useSession();
+// export async function getServerSideProps() {
+//   const { data: session } = useSession();
 
-  // Fetch data from an API or any other data source
-  if (session?.user) {
-    const response = await fetch(`${FETCH_POST}?userId=${session?.user._id}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session.user.accessToken}`,
-      },
-    });
-    const data = await response.json();
+//   // Fetch data from an API or any other data source
+//   if (session?.user) {
+//     const response = await fetch(`${FETCH_POST}?userId=${session?.user._id}`, {
+//       method: "GET",
+//       headers: {
+//         "Content-Type": "application/json",
+//         Authorization: `Bearer ${session.user.accessToken}`,
+//       },
+//     });
+//     const data = await response.json();
 
-    // Return the data as props
-    return {
-      props: {
-        data,
-      },
-    };
-  } else {
-    return {
-      props: {
-        data: [],
-      },
-    };
-  }
-}
+//     // Return the data as props
+//     return {
+//       props: {
+//         data,
+//       },
+//     };
+//   } else {
+//     return {
+//       props: {
+//         data: [],
+//       },
+//     };
+//   }
+// }
