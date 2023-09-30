@@ -3,9 +3,9 @@ import Post from "@components/Post";
 import { CREATE_POST, DELETE_POST, FETCH_POST } from "@utils/endPoint";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
-import "tailwindcss/tailwind.css";
+import "../styles/postLayout.style.scss";
 
-const Posts = ({ data }) => {
+const PostLayout = ({ data }) => {
   const [posts, setPosts] = useState([]);
   const [userId, setUserId] = useState(null);
 
@@ -124,8 +124,8 @@ const Posts = ({ data }) => {
   }, []);
 
   return (
-    <div className="container">
-      <div className="flex flex-wrap">
+    <div className="container postLayout">
+      <div className="flex flex-wrap post ">
         {posts.length > 0 ? (
           posts.map((item) => {
             return <Post data={item}></Post>;
@@ -138,7 +138,7 @@ const Posts = ({ data }) => {
   );
 };
 
-export default Posts;
+export default PostLayout;
 
 export async function getServerSideProps() {
   const { data: session } = useSession();
