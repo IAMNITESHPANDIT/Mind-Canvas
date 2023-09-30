@@ -16,7 +16,7 @@ export default async function handler(req, res) {
 
     const modifiedPosts = posts.map((post) => ({
       ...post,
-      isDelete: decoded.userId == post.userId || decoded.role == "admin",
+      isDelete: decoded?.userId == post?.userId || decoded?.role == "admin",
     }));
 
     res.status(200).json({

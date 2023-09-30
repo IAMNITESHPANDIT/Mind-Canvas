@@ -1,60 +1,50 @@
 import React from "react";
 import { FiEdit3 } from "react-icons/fi";
 import { AiOutlineDelete } from "react-icons/ai";
-function Post({ data }) {
-  console.log("data", data);
+import "../styles/post.style.scss";
+function Post({ data, handleUpdate, handleDeletePost }) {
   return (
-    <div class="static m-2 max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-      <div className="flex justify-end absolute">
-        {data.isDelete && (
-          <a
-            href="#"
-            class=" m-2 inline-flex items-center px-3 py-2 text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-          >
-            <FiEdit3 />
-          </a>
-        )}
-        {data.isDelete && (
-          <a
-            href="#"
-            class=" m-2 inline-flex items-center px-3 py-2 text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-          >
-            <AiOutlineDelete />
-          </a>
-        )}
+    <div
+      className="max-w-sm rounded overflow-hidden shadow-lg m-4 poster cursor-pointer"
+      onClick={() => handleUpdate(data, "view")}
+    >
+      {data.isDelete && (
+        <span className="editBtn">
+          <FiEdit3
+            onClick={(e) => {
+              e.stopPropagation();
+              handleUpdate(data, "edit");
+            }}
+            title="Edit"
+          />
+          <AiOutlineDelete
+            onClick={() => handleDeletePost(data._id)}
+            title="Delete"
+          />
+        </span>
+      )}
+
+      <img
+        className="w-full h-auto posterImg"
+        src={data.image}
+        alt="Sunset in the mountains"
+      />
+      <div className="px-6 py-4">
+        <div className="font-bold text-xl mb-2">{data.title}</div>
+        <p className="text-gray-700 text-base">{data.description}</p>
       </div>
-      <a href="#">
-        <img class="rounded-t-sm" src={data.image} alt="" />
-      </a>
-      <div class="p-5">
-        {data.hashtag}
-        <a href="#">
-          <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-            {data.title}
-          </h5>
-        </a>
-        <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">
-          {data.description}
-        </p>
-        <a
-          href="#"
-          class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-        >
-          Read more
-          <svg
-            aria-hidden="true"
-            class="w-4 h-4 ml-2 -mr-1"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-              clip-rule="evenodd"
-            ></path>
-          </svg>
-        </a>
+      <div className="p-3">
+        {data?.hashtags.length > 0 &&
+          data?.hashtags.map((item) => {
+            return (
+              <span
+                key={item}
+                className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2"
+              >
+                #{item}
+              </span>
+            );
+          })}
       </div>
     </div>
   );

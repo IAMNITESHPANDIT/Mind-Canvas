@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { login } from "@lib/method";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import "tailwindcss/tailwind.css";
 
 const validationSchema = Yup.object().shape({
