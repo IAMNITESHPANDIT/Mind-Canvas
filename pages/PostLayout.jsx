@@ -10,8 +10,8 @@ import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import "../styles/postLayout.style.scss";
 import PostForm from "@components/Model/PostForm";
-
-import { arrayToString, dataHandler, renderPostSection } from "./common";
+import Button from "@components/button/Button";
+import Link from "next/link";
 
 const PostLayout = () => {
   const [posts, setPosts] = useState([]);
@@ -22,6 +22,42 @@ const PostLayout = () => {
   const session = useSession();
   const userData = session?.data;
 
+  const renderPostSection = (session, handleUpdate) => {
+    if (session?.user) {
+      return (
+        <div className="routeBtnContainer">
+          <Button
+            btnEvent={() => handleUpdate({}, "add")}
+            btnName="Create Post"
+          />
+        </div>
+      );
+    } else {
+      return (
+        <>
+          <h2>Please Sign in </h2>
+          <Link href="/Signup" legacyBehavior>
+            <a>Signup</a>
+          </Link>
+        </>
+      );
+    }
+  };
+
+  function arrayToString(arr) {
+    return arr?.length > 0 ? arr.join(" ") : "";
+  }
+
+  function stringToArray(str) {
+    return str.split(" ");
+  }
+
+  const dataHandler = (data) => {
+    return (
+      data.length > 0 &&
+      data.map((item) => ({ ...item, hashtags: stringToArray(item.hashtag) }))
+    );
+  };
   const handleUpdatePost = async (newData) => {
     const { _id, title, description, hashtags, userId, role, image } = newData;
     const updatedHashtag = arrayToString(hashtags);
