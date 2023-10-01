@@ -163,9 +163,9 @@ const PostLayout = () => {
   }, [userData?.user?.accessToken]);
 
   return (
-    <>
+    <div className="postLayout">
       {renderPostSection(userData, handleUpdate)}
-      <div className="container postLayout">
+      <div className="container">
         <div className="flex flex-wrap post ">
           {posts.length > 0 ? (
             posts.map((item) => {
@@ -191,7 +191,7 @@ const PostLayout = () => {
           />
         )}
       </div>
-    </>
+    </div>
   );
 };
 

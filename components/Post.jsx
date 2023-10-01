@@ -18,7 +18,10 @@ function Post({ data, handleUpdate, handleDeletePost }) {
             title="Edit"
           />
           <AiOutlineDelete
-            onClick={() => handleDeletePost(data._id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDeletePost(data._id);
+            }}
             title="Delete"
           />
         </span>
