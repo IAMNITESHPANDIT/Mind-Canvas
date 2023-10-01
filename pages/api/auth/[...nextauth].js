@@ -1,6 +1,7 @@
 import { LOGIN_USER } from "@utils/endPoint";
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+
 export default NextAuth({
   secret: process.env.JWT_SECRET,
   session: {
@@ -14,21 +15,33 @@ export default NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials, req) {
-        const res = await fetch(`${process.env.BASE_URL}${LOGIN_USER}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: credentials?.username,
-            password: credentials?.password,
-          }),
-        });
-        const user = await res.json();
+        try {
+          const res = await fetch(`${process.env.BASE_URL}${LOGIN_USER}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: credentials?.username,
+              password: credentials?.password,
+            }),
+          });
 
-        if (user.ok && user) {
-          return user;
-        } else {
+          if (!res.ok) {
+            console.error(`Error: ${res.statusText}`);
+            return null;
+          }
+
+          const user = await res.json();
+
+          if (user.ok && user) {
+            return user;
+          } else {
+            console.error(`Login failed. Response: ${JSON.stringify(user)}`);
+            return null;
+          }
+        } catch (error) {
+          console.error("Error during login:", error);
           return null;
         }
       },
@@ -40,6 +53,7 @@ export default NextAuth({
       return { ...token, ...user };
     },
     async session({ session, token, user }) {
+      // Assuming that token contains the user information
       session.user = token;
       return session;
     },
