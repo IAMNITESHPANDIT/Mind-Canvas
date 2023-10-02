@@ -9,7 +9,14 @@ export default async function handler(req, res) {
 
     try {
       const { db } = await connectToDatabase();
-      const existingUser = await Registration.findOne({ email });
+
+      // Convert the provided email to lowercase
+      const normalizedEmail = email.toLowerCase();
+
+      // Check for existing user with case-insensitive email
+      const existingUser = await Registration.findOne({
+        email: normalizedEmail,
+      });
 
       if (existingUser) {
         res.status(400).json({ message: "Email is already registered" });
@@ -21,7 +28,7 @@ export default async function handler(req, res) {
 
       const registration = new Registration({
         name,
-        email,
+        email: normalizedEmail, // Store the normalized email
         password: hashedPassword,
         number,
         role: "user",
@@ -32,9 +39,6 @@ export default async function handler(req, res) {
 
       // Generate JWT token
       const token = generateToken(newUser._id, newUser.role);
-      // const token = jwt.sign({ userId: newUser._id }, secretKey, {
-      //   expiresIn: "1h",
-      // });
 
       res.status(201).json({
         message: `${role} is registered successfully`,

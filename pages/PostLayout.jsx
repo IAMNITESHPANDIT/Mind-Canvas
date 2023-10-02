@@ -7,7 +7,7 @@ import {
   UPDATE_POST,
 } from "@utils/endPoint";
 import { useSession } from "next-auth/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "../styles/postLayout.style.scss";
 import PostForm from "@components/Model/PostForm";
 import Button from "@components/button/Button";
@@ -17,7 +17,12 @@ const PostLayout = () => {
   const [activePost, setActivePost] = useState({});
   const [mode, setMode] = useState("view");
   const [open, setOpen] = useState(false);
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const [Limit, setLimit] = useState(4);
+  const [loading, setLoading] = useState(false);
+  const [total, setTotal] = useState(0);
+  const isMounted = useRef(true);
+  const [fetching, setFetching] = useState(false);
   const session = useSession();
   const userData = session?.data;
 
@@ -43,13 +48,12 @@ const PostLayout = () => {
   }
 
   const dataHandler = (data) => {
-    return (
-      data.length > 0 &&
-      data.map((item) => ({
-        ...item,
-        hashtags: item.hashtag.length > 0 ? stringToArray(item.hashtag) : [],
-      }))
-    );
+    return data.length > 0
+      ? data.map((item) => ({
+          ...item,
+          hashtags: item.hashtag.length > 0 ? stringToArray(item.hashtag) : [],
+        }))
+      : [];
   };
   const handleUpdatePost = async (newData) => {
     const { _id, title, description, hashtags, userId, role, image } = newData;
@@ -102,7 +106,7 @@ const PostLayout = () => {
       });
 
       const data = await response.json();
-      fetchPost();
+      setCurrentPage(1);
       setOpen(false);
     } catch (error) {
       console.log(error);
@@ -122,27 +126,41 @@ const PostLayout = () => {
       });
 
       const data = await response.json();
-      fetchPost();
+      setCurrentPage(1);
     } catch (error) {
       console.log(error);
     }
   };
 
   const fetchPost = async () => {
-    try {
-      const response = await fetch(`${FETCH_POST}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${
-            userData?.user?.accessToken ? userData.user.accessToken : ""
-          }`,
-        },
-      });
-      const data = await response.json();
-      setPosts(dataHandler(data.data));
-    } catch (error) {
-      console.log(error);
+    if (isMounted.current || !fetching) {
+      try {
+        setFetching(true);
+        const response = await fetch(
+          `${FETCH_POST}?limit=${Limit}&page=${currentPage}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${
+                userData?.user?.accessToken ? userData.user.accessToken : ""
+              }`,
+            },
+          }
+        );
+        const data = await response.json();
+        const newPosts = dataHandler(data.data);
+        if (currentPage === 1) {
+          setPosts(newPosts);
+        } else {
+          setPosts((prevPosts) => [...prevPosts, ...newPosts]);
+        }
+        setTotal(data.total);
+        setFetching(false);
+      } catch (error) {
+        setFetching(false);
+        console.log(error);
+      }
     }
   };
 
@@ -153,7 +171,10 @@ const PostLayout = () => {
   };
   useEffect(() => {
     fetchPost();
-  }, [userData?.user?.accessToken]);
+    return () => {
+      isMounted.current = false;
+    };
+  }, [userData?.user?.accessToken, currentPage]);
 
   return (
     <div className="postLayout">
@@ -173,7 +194,23 @@ const PostLayout = () => {
           ) : (
             <div>No Post aviliable</div>
           )}
+
+          {posts.length < total && (
+            <div className="loadMoreBtn">
+              <Button
+                isDisabled={fetching}
+                btnEvent={() => {
+                  setFetching(false);
+                  setCurrentPage((current) => current + 1);
+                  setLimit(4);
+                }}
+                btnName="Load More"
+              />
+            </div>
+          )}
         </div>
+        {loading && <div>Loading...</div>}
+
         {open && (
           <PostForm
             open={open}
@@ -189,32 +226,3 @@ const PostLayout = () => {
 };
 
 export default PostLayout;
-
-// export async function getServerSideProps() {
-//   const { data: session } = useSession();
-
-//   // Fetch data from an API or any other data source
-//   if (session?.user) {
-//     const response = await fetch(`${FETCH_POST}?userId=${session?.user._id}`, {
-//       method: "GET",
-//       headers: {
-//         "Content-Type": "application/json",
-//         Authorization: `Bearer ${session.user.accessToken}`,
-//       },
-//     });
-//     const data = await response.json();
-
-//     // Return the data as props
-//     return {
-//       props: {
-//         data,
-//       },
-//     };
-//   } else {
-//     return {
-//       props: {
-//         data: [],
-//       },
-//     };
-//   }
-// }

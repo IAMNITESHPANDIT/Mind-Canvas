@@ -215,7 +215,7 @@ const Register = () => {
             type="file"
             name="image"
             onChange={handleImageUpload}
-            className="px-4 py-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            className="px-4 py-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-1"
           />
           {formik.errors.image && formik.touched.image && (
             <p className="text-red-500 text-xs italic">{formik.errors.image}</p>
@@ -224,9 +224,9 @@ const Register = () => {
 
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-500 text-white font-bold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          className="px-4 py-2 bg-black text-white font-bold rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 signUpBtn"
         >
-          Register
+          Sign-Up
         </button>
       </form>
     </>
