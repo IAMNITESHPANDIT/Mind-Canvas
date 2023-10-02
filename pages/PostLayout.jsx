@@ -80,8 +80,12 @@ const PostLayout = () => {
         },
       });
       const data = await response.json();
+      if (currentPage === 1) {
+        fetchPost();
+      } else {
+        setCurrentPage(1);
+      }
       setOpen(false);
-      fetchPost();
     } catch (error) {
       console.log(error);
     }
@@ -106,7 +110,11 @@ const PostLayout = () => {
       });
 
       const data = await response.json();
-      setCurrentPage(1);
+      if (currentPage === 1) {
+        fetchPost();
+      } else {
+        setCurrentPage(1);
+      }
       setOpen(false);
     } catch (error) {
       console.log(error);
@@ -126,7 +134,11 @@ const PostLayout = () => {
       });
 
       const data = await response.json();
-      setCurrentPage(1);
+      if (currentPage === 1) {
+        fetchPost();
+      } else {
+        setCurrentPage(1);
+      }
     } catch (error) {
       console.log(error);
     }

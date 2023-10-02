@@ -7,8 +7,10 @@ export default async function handler(req, res) {
     const { email, password } = req.body;
 
     try {
+      const normalizedEmail = email.toLowerCase();
+
       const { db } = await connectToDatabase();
-      let user = await Registration.findOne({ email });
+      let user = await Registration.findOne({ email: normalizedEmail });
 
       if (!user) {
         res
