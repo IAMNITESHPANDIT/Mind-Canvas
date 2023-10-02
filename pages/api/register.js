@@ -24,7 +24,7 @@ export default async function handler(req, res) {
         email,
         password: hashedPassword,
         number,
-        role,
+        role: "user",
         image,
       });
 

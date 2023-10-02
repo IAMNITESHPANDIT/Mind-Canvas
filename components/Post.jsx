@@ -2,6 +2,7 @@ import React from "react";
 import { FiEdit3 } from "react-icons/fi";
 import { AiOutlineDelete } from "react-icons/ai";
 import "../styles/post.style.scss";
+import { ConfirmDelete } from "@utils/ConfirmAlerts";
 function Post({ data, handleUpdate, handleDeletePost }) {
   return (
     <div
@@ -20,7 +21,7 @@ function Post({ data, handleUpdate, handleDeletePost }) {
           <AiOutlineDelete
             onClick={(e) => {
               e.stopPropagation();
-              handleDeletePost(data._id);
+              ConfirmDelete(data._id, handleDeletePost);
             }}
             title="Delete"
           />

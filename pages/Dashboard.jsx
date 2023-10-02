@@ -1,10 +1,9 @@
-"use client";
-import Routes from "./Routes";
+import PostLayout from "./PostLayout";
 
 function Dashboard() {
   return (
     <div>
-      <Routes />
+      <PostLayout />
     </div>
   );
 }

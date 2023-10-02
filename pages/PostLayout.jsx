@@ -11,7 +11,6 @@ import { useState, useEffect } from "react";
 import "../styles/postLayout.style.scss";
 import PostForm from "@components/Model/PostForm";
 import Button from "@components/button/Button";
-import Link from "next/link";
 
 const PostLayout = () => {
   const [posts, setPosts] = useState([]);
@@ -32,15 +31,6 @@ const PostLayout = () => {
           />
         </div>
       );
-    } else {
-      return (
-        <>
-          <h2>Please Sign in </h2>
-          <Link href="/Signup" legacyBehavior>
-            <a>Signup</a>
-          </Link>
-        </>
-      );
     }
   };
 
@@ -55,7 +45,10 @@ const PostLayout = () => {
   const dataHandler = (data) => {
     return (
       data.length > 0 &&
-      data.map((item) => ({ ...item, hashtags: stringToArray(item.hashtag) }))
+      data.map((item) => ({
+        ...item,
+        hashtags: item.hashtag.length > 0 ? stringToArray(item.hashtag) : [],
+      }))
     );
   };
   const handleUpdatePost = async (newData) => {
