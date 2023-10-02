@@ -65,7 +65,7 @@ const Register = () => {
           email: values.email,
           password: values.password,
           number: values.number,
-          role: "User",
+          role: "user",
           image: defulatImage || values.image,
         }),
       });

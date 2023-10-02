@@ -8,6 +8,8 @@ export default async function handler(req, res) {
     const token = req.headers.authorization.split("Bearer ")[1];
     const decoded = verifyToken(token);
 
+    console.log("VERIFY TOKEN", decoded);
+
     // Pagination parameters
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10; // Adjust the limit as per your requirement

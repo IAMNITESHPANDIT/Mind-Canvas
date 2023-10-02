@@ -55,6 +55,7 @@ const PostLayout = () => {
         }))
       : [];
   };
+  console.log("derae", userData);
   const handleUpdatePost = async (newData) => {
     const { _id, title, description, hashtags, userId, role, image } = newData;
     const updatedHashtag = arrayToString(hashtags);
@@ -145,34 +146,32 @@ const PostLayout = () => {
   };
 
   const fetchPost = async () => {
-    if (isMounted.current || !fetching) {
-      try {
-        setFetching(true);
-        const response = await fetch(
-          `${FETCH_POST}?limit=${Limit}&page=${currentPage}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${
-                userData?.user?.accessToken ? userData.user.accessToken : ""
-              }`,
-            },
-          }
-        );
-        const data = await response.json();
-        const newPosts = dataHandler(data.data);
-        if (currentPage === 1) {
-          setPosts(newPosts);
-        } else {
-          setPosts((prevPosts) => [...prevPosts, ...newPosts]);
+    try {
+      setFetching(true);
+      const response = await fetch(
+        `${FETCH_POST}?limit=${Limit}&page=${currentPage}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${
+              userData?.user?.accessToken ? userData.user.accessToken : ""
+            }`,
+          },
         }
-        setTotal(data.total);
-        setFetching(false);
-      } catch (error) {
-        setFetching(false);
-        console.log(error);
+      );
+      const data = await response.json();
+      const newPosts = dataHandler(data.data);
+      if (currentPage === 1) {
+        setPosts(newPosts);
+      } else {
+        setPosts((prevPosts) => [...prevPosts, ...newPosts]);
       }
+      setTotal(data.total);
+      setFetching(false);
+    } catch (error) {
+      setFetching(false);
+      console.log(error);
     }
   };
 

@@ -28,7 +28,7 @@ export default async function handler(req, res) {
 
       const registration = new Registration({
         name,
-        email: normalizedEmail, // Store the normalized email
+        email: normalizedEmail,
         password: hashedPassword,
         number,
         role: "user",
