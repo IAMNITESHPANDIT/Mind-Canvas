@@ -192,7 +192,9 @@ const PostLayout = () => {
               );
             })
           ) : (
-            <div>No Post aviliable</div>
+            <div className="m-5 noData">
+              <span>No posts are aviliable</span>
+            </div>
           )}
 
           {posts.length < total && (
