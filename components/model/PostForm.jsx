@@ -1,10 +1,10 @@
-// components/PostForm.js
 import React from "react";
 import { Formik, Field, Form, ErrorMessage, FieldArray } from "formik";
 import Button from "@components/button/Button";
 import "../../styles/postform.style.scss";
 import { AiOutlineDelete } from "react-icons/ai";
 import { validationSchema } from "./PostSchema";
+import Head from "next/head";
 
 const PostForm = ({ data, onSubmit, mode, open, setOpen }) => {
   const initialValues = {
@@ -14,6 +14,12 @@ const PostForm = ({ data, onSubmit, mode, open, setOpen }) => {
     hashtags: data?.hashtags?.length > 0 ? data?.hashtags : [],
     image: data?.image?.length > 0 ? data?.image : "",
   };
+  const pageTitle =
+    mode === "view" ? "View Post" : mode === "edit" ? "Edit Post" : "Add Post";
+  const pageDescription =
+    mode === "view"
+      ? "View and explore post details."
+      : "Create or edit a post with our easy-to-use form.";
 
   const shouldRenderAddButton = (form) => {
     return (
@@ -29,6 +35,10 @@ const PostForm = ({ data, onSubmit, mode, open, setOpen }) => {
 
   return (
     <>
+      <Head>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+      </Head>
       {open && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center postForm ">
           <div className="bg-white p-8 rounded shadow-md w-96">

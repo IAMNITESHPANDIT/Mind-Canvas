@@ -1,5 +1,11 @@
 .footer {
   margin-top: 10%;
+    position: relative;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+  
   .links {
     display: flex !important;
     justify-content: space-around;
@@ -9,5 +15,6 @@
   .copyright {
     text-align: center;
     width: 100%;
-  }
+  }  
+
 }

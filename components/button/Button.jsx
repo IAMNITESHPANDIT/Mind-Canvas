@@ -1,4 +1,4 @@
-import "../../styles/button/button.scss";
+import "../../styles/button.style.scss";
 function Button({ isDisabled = false, btnName, btnEvent, btnClsName }) {
   return (
     <button

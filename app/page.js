@@ -1,9 +1,9 @@
-import Dashboard from "@pages/Dashboard";
+import PostLayout from "@pages/PostLayout";
 
 export default function Home() {
   return (
     <main className="">
-      <Dashboard />
+      <PostLayout />
     </main>
   );
 }
