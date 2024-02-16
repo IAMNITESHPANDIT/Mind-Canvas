@@ -1,6 +1,6 @@
 import { BsGithub } from "react-icons/bs";
 import { AiFillLinkedin } from "react-icons/ai";
-import "../styles/footer.style.scss";
+import "../../styles/footer.style.scss";
 const Footer = () => {
   return (
     <footer className="bg-gray-800 p-4 text-white text-center footer">
