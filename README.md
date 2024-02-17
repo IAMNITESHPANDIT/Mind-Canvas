@@ -18,8 +18,8 @@ Follow these steps to set up and run the project locally:
 1. **Clone the repository:**
 
     ```bash
-    git clone https://github.com/IAMNITESHPANDIT/Idea-Box
-    cd User-Dictionary-app
+    git clone https://github.com/IAMNITESHPANDIT/Mind-Canvas
+    cd Mind-Canvas
     ```
 
 2. **Install Dependencies:**
