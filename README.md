@@ -2,7 +2,7 @@
 
 ## Description
 
-this is assignment project which is completed by Nitesh(iamniteshpandit), please follow the instructions in order to run the project
+this is MindCanvas project which is completed by Nitesh(iamniteshpandit), please follow the instructions in order to run the project
 
 ## Prerequisites
 
