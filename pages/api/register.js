@@ -1,53 +1,51 @@
-import { connectToDatabase } from "@lib/mongodb";
 import Registration from "@models/Registration";
-import bcrypt from "bcrypt";
-import { generateToken } from "@lib/auth";
+import { generateToken, generateRefreshToken } from "@lib/auth";
+import { connectToDatabase } from "@lib/mongodb";
 
 export default async function handler(req, res) {
   if (req.method === "POST") {
-    const { name, email, password, number, role, image } = req.body;
+    const { email, password } = req.body;
 
     try {
-      const { db } = await connectToDatabase();
-
-      // Convert the provided email to lowercase
       const normalizedEmail = email.toLowerCase();
 
-      // Check for existing user with case-insensitive email
-      const existingUser = await Registration.findOne({
-        email: normalizedEmail,
-      });
+      const { db } = await connectToDatabase();
+      let user = await Registration.findOne({ email: normalizedEmail });
 
-      if (existingUser) {
-        res.status(400).json({ message: "Email is already registered" });
+      if (!user) {
+        res.status(401).json({ error: "Invalid email or password", user: null });
         return;
       }
 
-      // Hash the password
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const isPasswordValid = await user.comparePassword(password.toString());
+      if (!isPasswordValid) {
+        res.status(401).json({ error: "Invalid email or password", user: null });
+        return;
+      }
 
-      const registration = new Registration({
-        name,
-        email: normalizedEmail,
-        password: hashedPassword,
-        number,
-        role: "user",
-        image,
-      });
+      const accessToken = generateToken(user._id, user.role);
+      const refreshToken = generateRefreshToken(user._id);
+      const filter = { email: normalizedEmail };
+      const update = { $set: { refreshToken: refreshToken } };
+      const options = { new: true };
+      user = await Registration.findOneAndUpdate(filter, update, options);
 
-      const newUser = await registration.save();
+      if (!user) {
+        res.status(401).json({ error: "User not found", user: null });
+        return;
+      }
 
-      // Generate JWT token
-      const token = generateToken(newUser._id, newUser.role);
+      let userReg = JSON.stringify(user);
+      let m = JSON.parse(userReg);
+      m.accessToken = accessToken;
+      m.refreshToken = refreshToken;
+      m.ok = true;
+      m.success = true;
 
-      res.status(201).json({
-        message: `${role} is registered successfully`,
-        user: newUser,
-        token,
-      });
+      res.status(200).json({ ...m });
     } catch (error) {
-      console.error("Failed to register:", error);
-      res.status(500).json({ error: "Failed to register" });
+      console.error("Failed to login:", error);
+      res.status(500).json({ error: "Failed to login", ok: false, success: false });
     }
   } else {
     res.status(405).json({ error: "Method Not Allowed" });

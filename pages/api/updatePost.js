@@ -25,7 +25,6 @@ export default async function handler(req, res) {
       return;
     }
 
-    // Exclude _id from the update operation
     delete newData._id;
 
     await db

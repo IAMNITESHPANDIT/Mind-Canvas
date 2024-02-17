@@ -1,5 +1,5 @@
 import Registration from "@models/Registration";
-import { generateToken } from "@lib/auth";
+import { generateToken, generateRefreshToken } from "@lib/auth";
 import { connectToDatabase } from "@lib/mongodb";
 
 export default async function handler(req, res) {
@@ -8,8 +8,7 @@ export default async function handler(req, res) {
 
     try {
       const normalizedEmail = email.toLowerCase();
-
-      const { db } = await connectToDatabase();
+      await connectToDatabase();
       let user = await Registration.findOne({ email: normalizedEmail });
 
       if (!user) {
@@ -19,7 +18,7 @@ export default async function handler(req, res) {
         return;
       }
 
-      const isPasswordValid = await user.comparePassword(password);
+      const isPasswordValid = await user.comparePassword(password.toString());
       if (!isPasswordValid) {
         res
           .status(401)
@@ -27,11 +26,18 @@ export default async function handler(req, res) {
         return;
       }
 
-      const token = generateToken(user._id, user.role);
-      // Fetch associated registration details and posts
+      const accessToken = generateToken(user._id, user.role);
+
+      const refreshToken = generateRefreshToken(user._id);
+
+      user.refreshToken = refreshToken;
+
+      await user.save();
+
       let userReg = JSON.stringify(user);
       let m = JSON.parse(userReg);
-      m.accessToken = token;
+      m.accessToken = accessToken;
+      m.refreshToken = refreshToken;
       m.ok = true;
       m.success = true;
       res.status(200).json({ ...m });

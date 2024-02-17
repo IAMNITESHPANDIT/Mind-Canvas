@@ -5,40 +5,50 @@ export default async function handler(req, res) {
   const { db } = await connectToDatabase();
 
   if (req.method === "GET") {
-    const token = req.headers.authorization.split("Bearer ")[1];
-    const decoded = verifyToken(token);
-    // Pagination parameters
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10; // Adjust the limit as per your requirement
+    try {
+      const token = req.headers.authorization?.split("Bearer ")[1];
+      const decoded = token && verifyToken(token);
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+      const skip = (page - 1) * limit;
 
-    const skip = (page - 1) * limit;
+      let posts = await db
+        .collection("posts")
+        .find()
+        .sort({ createdAt: -1 })
+        .toArray();
 
-    // Fetch posts for the current page
-    const posts = await db
-      .collection("posts")
-      .find()
-      .skip(skip)
-      .limit(limit)
-      .toArray();
+      if (!posts || posts.length === 0) {
+        res.status(200).json({ message: "No posts found", data: [] });
+        return;
+      }
 
-    // Count total number of posts
-    const total = await db.collection("posts").countDocuments();
+      posts.sort((a, b) => b.createdAt - a.createdAt);
 
-    if (!posts) {
-      res.status(404).json({ message: "Post not found" });
-      return;
+      if (decoded) {
+        const userPosts = posts.filter((post) => post.userId === decoded.userId);
+        const otherPosts = posts.filter((post) => post.userId !== decoded.userId);
+        posts = [...userPosts, ...otherPosts];
+      }
+
+      const total = posts.length;
+
+      const modifiedPosts = posts.map((post) => ({
+        ...post,
+        isDelete: decoded?.userId == post?.userId || decoded?.role == "admin",
+      }));
+
+      const paginatedPosts = modifiedPosts.slice(skip, skip + limit);
+
+      res.status(200).json({
+        message: "Posts successfully fetched",
+        data: paginatedPosts,
+        total: total,
+      });
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+      res.status(500).json({ message: "Internal Server Error" });
     }
-
-    const modifiedPosts = posts.map((post) => ({
-      ...post,
-      isDelete: decoded?.userId == post?.userId || decoded?.role == "admin",
-    }));
-
-    res.status(200).json({
-      message: "Posts successfully fetched",
-      data: modifiedPosts,
-      total: total,
-    });
   } else {
     res.status(405).json({ message: "Method Not Allowed" });
   }
