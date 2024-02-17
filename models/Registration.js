@@ -30,6 +30,9 @@ const registrationSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
+  refreshToken: {
+    type: String,
+  },
 });
 registrationSchema.methods.comparePassword = async function (password) {
   return bcrypt.compare(password, this.password);

@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   if (req.method === "POST") {
     const { title, description, hashtag, role, image } = req.body;
     const token = req.headers.authorization;
-    const defulatImage =
+    const defaultImage =
       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dXNlciUyMHByb2ZpbGV8ZW58MHx8MHx8fDA%3D&w=1000&q=80";
 
     if (!token) {
@@ -16,26 +16,22 @@ export default async function handler(req, res) {
     }
 
     try {
-      // Extract the token from the "Bearer <token>" format
       const extractedToken = token.split(" ")[1];
 
-      // Verify and decode the token
       const decodedToken = jwt.verify(extractedToken, process.env.JWT_SECRET);
 
-      // Access the user ID from the decoded token
       const userId = decodedToken.userId;
 
-      // Create the post object
       const post = {
         title,
         description,
         hashtag,
         userId,
         role,
-        image: image || defulatImage,
+        image: image || defaultImage,
+        createdAt: new Date(),
       };
 
-      // Insert the post into the database
       const result = await db.collection("posts").insertOne(post);
 
       res.status(201).json({
