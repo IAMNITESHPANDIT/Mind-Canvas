@@ -1,51 +1,47 @@
-import Registration from "@models/Registration";
-import { generateToken, generateRefreshToken } from "@lib/auth";
+import { generateToken } from "@lib/auth";
 import { connectToDatabase } from "@lib/mongodb";
+import Registration from "@models/Registration";
+import bcrypt from "bcrypt";
 
 export default async function handler(req, res) {
   if (req.method === "POST") {
-    const { email, password } = req.body;
+    const { name, email, password, number, role, image } = req.body;
 
     try {
-      const normalizedEmail = email.toLowerCase();
-
       const { db } = await connectToDatabase();
-      let user = await Registration.findOne({ email: normalizedEmail });
+      const existingUser = await Registration.findOne({ email });
 
-      if (!user) {
-        res.status(401).json({ error: "Invalid email or password", user: null });
+      if (existingUser) {
+        res.status(400).json({ message: "Email is already registered" });
         return;
       }
+      const hashedPassword = await bcrypt.hash(password, 10);
 
-      const isPasswordValid = await user.comparePassword(password.toString());
-      if (!isPasswordValid) {
-        res.status(401).json({ error: "Invalid email or password", user: null });
-        return;
-      }
+      const registration = new Registration({
+        name,
+        email,
+        password: hashedPassword,
+        number,
+        role,
+        image,
+      });
 
-      const accessToken = generateToken(user._id, user.role);
-      const refreshToken = generateRefreshToken(user._id);
-      const filter = { email: normalizedEmail };
-      const update = { $set: { refreshToken: refreshToken } };
-      const options = { new: true };
-      user = await Registration.findOneAndUpdate(filter, update, options);
+      const newUser = await registration.save();
 
-      if (!user) {
-        res.status(401).json({ error: "User not found", user: null });
-        return;
-      }
+      // Generate JWT token
+      const token = generateToken(newUser._id, newUser.role);
+      // const token = jwt.sign({ userId: newUser._id }, secretKey, {
+      //   expiresIn: "1h",
+      // });
 
-      let userReg = JSON.stringify(user);
-      let m = JSON.parse(userReg);
-      m.accessToken = accessToken;
-      m.refreshToken = refreshToken;
-      m.ok = true;
-      m.success = true;
-
-      res.status(200).json({ ...m });
+      res.status(201).json({
+        message: `${role} is registered successfully`,
+        user: newUser,
+        token,
+      });
     } catch (error) {
-      console.error("Failed to login:", error);
-      res.status(500).json({ error: "Failed to login", ok: false, success: false });
+      console.error("Failed to register:", error);
+      res.status(500).json({ error: "Failed to register" });
     }
   } else {
     res.status(405).json({ error: "Method Not Allowed" });
